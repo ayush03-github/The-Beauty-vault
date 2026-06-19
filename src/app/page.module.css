@@ -1,142 +1,320 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
+.hero {
+  position: relative;
+  height: 80vh;
+  min-height: 550px;
   display: flex;
-  flex: 1;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
 }
 
-.main {
-  display: flex;
-  flex: 1;
+.heroImageContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  height: 100%;
+  z-index: 1;
 }
 
-.intro {
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.95);
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(245, 244, 240, 0.9) 0%, rgba(245, 244, 240, 0.5) 50%, rgba(245, 244, 240, 0) 100%);
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .heroOverlay {
+    background: linear-gradient(180deg, rgba(245, 244, 240, 0.95) 0%, rgba(245, 244, 240, 0.7) 100%);
+  }
+}
+
+.heroContent {
+  position: relative;
+  z-index: 3;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
+  gap: var(--spacing-md);
+  animation: fadeIn 0.8s ease-out;
 }
 
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
+.heroSubtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
   font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
   color: var(--text-secondary);
 }
 
-.intro a {
-  font-weight: 500;
+.heroTitle {
+  font-size: 3rem;
+  line-height: 1.15;
   color: var(--text-primary);
 }
 
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
-}
-
-.ctas a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
-}
-
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
-}
-
-a.secondary {
-  border-color: var(--button-secondary-border);
-}
-
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2.2rem;
   }
+}
 
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
+.heroDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.heroCta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: 1px solid var(--border-dark);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: var(--spacing-sm);
+  transition: var(--transition-smooth);
+}
+
+.heroCta:hover {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* Benefits Section */
+.benefits {
+  background-color: var(--bg-primary);
+  padding: var(--spacing-xxl) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 1024px) {
+  .benefitsGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
+.benefitCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.benefitIcon {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.benefitTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.benefitDescription {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Featured / Best Sellers Section */
+.featured {
+  padding: var(--spacing-xxl) 0;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--spacing-xl);
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+}
+
+.viewAllLink {
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--text-primary);
+  padding-bottom: var(--spacing-xs);
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+@media (max-width: 600px) {
+  .productGrid {
+    grid-template-columns: 1fr;
   }
+}
+
+/* Product Card Component styles */
+.productCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  position: relative;
+  group-hover: hover;
+}
+
+.imageWrapper {
+  background-color: var(--bg-secondary);
+  position: relative;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.productCard:hover .productImage {
+  transform: scale(1.05);
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
+.cardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.productCategory {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.productName {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.productPrice {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: var(--spacing-xs);
+}
+
+/* Story/Editorial Section */
+.story {
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-xxl) 0;
+}
+
+.storyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--spacing-xxl);
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .storyGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+}
+
+.storyImageWrapper {
+  aspect-ratio: 1/1;
+  position: relative;
+  overflow: hidden;
+}
+
+.storyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.storyContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-width: 500px;
+}
+
+.storyTitle {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+.storyDescription {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.storyCta {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--text-primary);
+  padding-bottom: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
 }

@@ -1,0 +1,130 @@
+.journalPage {
+  background-color: var(--bg-primary);
+  padding: var(--spacing-xxl) 0;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-xxl);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.title {
+  font-size: 3rem;
+}
+
+/* Featured Post */
+.featuredPost {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--spacing-xxl);
+  align-items: center;
+  margin-bottom: var(--spacing-xxl);
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: var(--spacing-xxl);
+}
+
+@media (max-width: 768px) {
+  .featuredPost {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+}
+
+.featuredImageWrapper {
+  aspect-ratio: 16/9;
+  position: relative;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.featuredPost:hover .image, .postCard:hover .image {
+  transform: scale(1.03);
+}
+
+.featuredContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.postTitle {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  line-height: 1.2;
+}
+
+.excerpt {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.readMore {
+  align-self: flex-start;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--text-primary);
+  padding-bottom: var(--spacing-xs);
+}
+
+/* Posts Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.postCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.cardImageWrapper {
+  aspect-ratio: 4/3;
+  position: relative;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.cardTitle {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  line-height: 1.3;
+}

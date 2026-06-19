@@ -1,0 +1,125 @@
+.aboutPage {
+  background-color: var(--bg-primary);
+  padding-bottom: var(--spacing-xxl);
+}
+
+.hero {
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-xxl) 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-xxl);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.title {
+  font-size: 3.5rem;
+  margin-bottom: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+.intro {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.section {
+  padding: var(--spacing-xl) 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xxl);
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+  
+  .reverseMobile {
+    direction: rtl; /* simple trick to flip image/text order on mobile */
+  }
+  .reverseMobile > * {
+    direction: ltr; /* reset text direction */
+  }
+}
+
+.imageWrapper {
+  aspect-ratio: 4/5;
+  position: relative;
+  background-color: var(--bg-secondary);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  line-height: 1.3;
+}
+
+.text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Values Grid */
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+}
+
+@media (max-width: 900px) {
+  .valuesGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+.valueCard {
+  border: 1px solid var(--border-light);
+  padding: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.valueTitle {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+}

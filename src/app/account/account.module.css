@@ -1,0 +1,135 @@
+.accountPage {
+  background-color: var(--bg-primary);
+  padding: var(--spacing-xxl) 0;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-xxl);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.title {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.welcomeText {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: var(--spacing-xxl);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionTitle {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Orders list */
+.orderCard {
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-md);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .orderCard {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+  }
+}
+
+.orderLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.orderValue {
+  font-weight: 500;
+}
+
+.fulfilled {
+  color: #2b7a4b;
+}
+
+/* Address Card */
+.addressCard {
+  border: 1px solid var(--border-light);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.addressText {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.button {
+  border: 1px solid var(--border-dark);
+  padding: 10px 20px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  align-self: flex-start;
+  transition: var(--transition-fast);
+}
+
+.button:hover {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+.logoutLink {
+  margin-top: var(--spacing-xl);
+  text-decoration: underline;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  align-self: center;
+  transition: var(--transition-fast);
+}
+
+.logoutLink:hover {
+  color: var(--text-primary);
+}

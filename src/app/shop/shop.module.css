@@ -1,0 +1,259 @@
+.shopPage {
+  padding-bottom: var(--spacing-xxl);
+  background-color: var(--bg-primary);
+}
+
+/* Header/Hero for Shop */
+.shopHero {
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-xxl) 0;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-xl);
+}
+
+.shopHeroContent {
+  max-width: 600px;
+}
+
+.shopSubtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.shopTitle {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.shopDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Category Filter Bar */
+.categoryBar {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.categoryBar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.categoryButton {
+  font-size: 0.95rem;
+  padding: var(--spacing-xs) var(--spacing-md);
+  color: var(--text-secondary);
+  position: relative;
+  white-space: nowrap;
+}
+
+.categoryButtonActive {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.categoryButtonActive::after {
+  content: '';
+  position: absolute;
+  bottom: -17px; /* Align to the bottom border */
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-primary);
+}
+
+/* Filter controls & Layout */
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+/* Sidebar filter */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none; /* We will create a toggleable drawer or simple top controls for mobile */
+  }
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.filterTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.filterOption input {
+  accent-color: var(--text-primary);
+}
+
+/* Top toolbar for sorting/count (visible everywhere) */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.sortSelect {
+  background: none;
+  border: 1px solid var(--border-medium);
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+/* Product list area */
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card details (reused layout from homepage with adjustments) */
+.productCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.imageWrapper {
+  background-color: var(--bg-secondary);
+  position: relative;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.productCard:hover .productImage {
+  transform: scale(1.04);
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
+.cardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.productCategory {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.productName {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.productPrice {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: var(--spacing-xs);
+}
+
+/* Mobile filter trigger */
+.mobileFilterTrigger {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobileFilterTrigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    border: 1px solid var(--border-medium);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
