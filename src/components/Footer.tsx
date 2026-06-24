@@ -14,12 +14,29 @@ export default function Footer() {
     if (!email) return;
     setIsSubmitting(true);
     
-    // Simulate premium subscription request
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    
-    setIsSubmitting(false);
-    setIsSubscribed(true);
-    setEmail("");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        alert(data.error || "Something went wrong. Please try again.");
+      } else {
+        setIsSubscribed(true);
+        setEmail("");
+      }
+    } catch (err) {
+      console.warn("Newsletter subscription failed:", err);
+      alert("Failed to connect to the server. Please check your network connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
