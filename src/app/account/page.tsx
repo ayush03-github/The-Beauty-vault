@@ -34,6 +34,38 @@ interface Address {
   phone: string;
 }
 
+interface CountryOption {
+  name: string;
+  code: string;
+  phoneLength: number;
+}
+
+const COUNTRIES: CountryOption[] = [
+  { name: "India", code: "+91", phoneLength: 10 },
+  { name: "United States", code: "+1", phoneLength: 10 },
+  { name: "United Kingdom", code: "+44", phoneLength: 10 },
+  { name: "Switzerland", code: "+41", phoneLength: 9 },
+  { name: "Canada", code: "+1", phoneLength: 10 },
+  { name: "Germany", code: "+49", phoneLength: 11 },
+  { name: "Australia", code: "+61", phoneLength: 9 },
+];
+
+function parsePhoneNumber(phone: string): { code: string; local: string } {
+  const cleaned = phone.trim();
+  for (const c of COUNTRIES) {
+    if (cleaned.startsWith(c.code)) {
+      const local = cleaned.substring(c.code.length).trim().replace(/\s+/g, "");
+      return { code: c.code, local };
+    }
+  }
+  if (cleaned.startsWith("+")) {
+    const parts = cleaned.split(" ");
+    if (parts.length > 1) {
+      return { code: parts[0], local: parts.slice(1).join("").replace(/\s+/g, "") };
+    }
+  }
+  return { code: "+91", local: cleaned.replace(/\s+/g, "") };
+}
 
 export default function AccountPage() {
   const { user, loading, error, signIn, signUp, signOut, updateProfileAddress, isMock } = useAuth();
@@ -57,6 +89,15 @@ export default function AccountPage() {
     phone: "+41 79 123 4567"
   });
   const [orders, setOrders] = useState<Order[]>([]);
+
+  // Temporary address form fields
+  const [editName, setEditName] = useState("");
+  const [editLine1, setEditLine1] = useState("");
+  const [editLine2, setEditLine2] = useState("");
+  const [editCountry, setEditCountry] = useState("Switzerland");
+  const [editPhoneCode, setEditPhoneCode] = useState("+41");
+  const [editPhoneLocal, setEditPhoneLocal] = useState("791234567");
+  const [phoneValidationError, setPhoneValidationError] = useState<string | null>(null);
 
   // Load custom address and orders dynamically based on user profile state and database
   useEffect(() => {
@@ -162,14 +203,100 @@ export default function AccountPage() {
     }
   };
 
+  const validatePhone = (code: string, local: string): boolean => {
+    const digitsOnly = local.replace(/\D/g, "");
+    if (digitsOnly !== local) {
+      setPhoneValidationError("Phone number must contain only digits");
+      return false;
+    }
+    
+    if (local.length === 0) {
+      setPhoneValidationError("Phone number cannot be empty");
+      return false;
+    }
+
+    const found = COUNTRIES.find(c => c.code === code);
+    if (found) {
+      if (found.name === "Germany") {
+        if (local.length < 10 || local.length > 11) {
+          setPhoneValidationError("Germany phone numbers must be 10 or 11 digits");
+          return false;
+        }
+      } else {
+        if (local.length !== found.phoneLength) {
+          setPhoneValidationError(`${found.name} phone numbers must be exactly ${found.phoneLength} digits`);
+          return false;
+        }
+      }
+    } else {
+      if (local.length < 7 || local.length > 15) {
+        setPhoneValidationError("Phone number must be between 7 and 15 digits");
+        return false;
+      }
+    }
+    
+    setPhoneValidationError(null);
+    return true;
+  };
+
+  const handlePhoneLocalChange = (val: string) => {
+    const digits = val.replace(/\D/g, "");
+    setEditPhoneLocal(digits);
+    validatePhone(editPhoneCode, digits);
+  };
+
+  const handlePhoneCodeChange = (code: string) => {
+    setEditPhoneCode(code);
+    const found = COUNTRIES.find(c => c.code === code);
+    if (found) {
+      setEditCountry(found.name);
+    }
+    validatePhone(code, editPhoneLocal);
+  };
+
+  const handleCountryChange = (countryName: string) => {
+    setEditCountry(countryName);
+    const found = COUNTRIES.find(c => c.name === countryName);
+    if (found) {
+      setEditPhoneCode(found.code);
+      validatePhone(found.code, editPhoneLocal);
+    }
+  };
+
+  const handleStartEdit = () => {
+    setEditName(address.name);
+    setEditLine1(address.line1);
+    setEditLine2(address.line2);
+    setEditCountry(address.country);
+    
+    const parsed = parsePhoneNumber(address.phone);
+    setEditPhoneCode(parsed.code);
+    setEditPhoneLocal(parsed.local);
+    setPhoneValidationError(null);
+    setIsEditingAddress(true);
+  };
+
   const handleAddressSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validatePhone(editPhoneCode, editPhoneLocal)) {
+      return;
+    }
+    
     if (user) {
       setFormLoading(true);
       setFormError(null);
-      const success = await updateProfileAddress(address);
+      const newAddress = {
+        name: editName,
+        line1: editLine1,
+        line2: editLine2,
+        country: editCountry,
+        phone: `${editPhoneCode} ${editPhoneLocal}`,
+      };
+      
+      const success = await updateProfileAddress(newAddress);
       setFormLoading(false);
       if (success) {
+        setAddress(newAddress);
         setIsEditingAddress(false);
       } else {
         setFormError("Failed to update address. Please try again.");
@@ -357,8 +484,8 @@ export default function AccountPage() {
                     type="text"
                     required
                     className={styles.input}
-                    value={address.name}
-                    onChange={(e) => setAddress({ ...address, name: e.target.value })}
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -367,8 +494,8 @@ export default function AccountPage() {
                     type="text"
                     required
                     className={styles.input}
-                    value={address.line1}
-                    onChange={(e) => setAddress({ ...address, line1: e.target.value })}
+                    value={editLine1}
+                    onChange={(e) => setEditLine1(e.target.value)}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -377,29 +504,54 @@ export default function AccountPage() {
                     type="text"
                     required
                     className={styles.input}
-                    value={address.line2}
-                    onChange={(e) => setAddress({ ...address, line2: e.target.value })}
+                    value={editLine2}
+                    onChange={(e) => setEditLine2(e.target.value)}
                   />
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Country</label>
-                  <input
-                    type="text"
-                    required
+                  <select
                     className={styles.input}
-                    value={address.country}
-                    onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                  />
+                    value={editCountry}
+                    onChange={(e) => handleCountryChange(e.target.value)}
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Phone Number</label>
-                  <input
-                    type="text"
-                    required
-                    className={styles.input}
-                    value={address.phone}
-                    onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                  />
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <select
+                      className={styles.input}
+                      style={{ width: "100px", padding: "0 10px" }}
+                      value={editPhoneCode}
+                      onChange={(e) => handlePhoneCodeChange(e.target.value)}
+                    >
+                      {COUNTRIES.map(c => (
+                        <option key={`${c.name}-code`} value={c.code}>
+                          {c.code} ({c.name})
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      required
+                      className={styles.input}
+                      style={{ flex: 1 }}
+                      value={editPhoneLocal}
+                      onChange={(e) => handlePhoneLocalChange(e.target.value)}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  {phoneValidationError && (
+                    <span style={{ color: "#e53e3e", fontSize: "0.85rem", marginTop: "4px", display: "block" }}>
+                      {phoneValidationError}
+                    </span>
+                  )}
                 </div>
                 <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                   <button type="submit" className={styles.button}>Save</button>
@@ -420,7 +572,7 @@ export default function AccountPage() {
                 
                 <button 
                   className={styles.button}
-                  onClick={() => setIsEditingAddress(true)}
+                  onClick={handleStartEdit}
                   style={{ marginTop: "10px" }}
                 >
                   Edit Address
