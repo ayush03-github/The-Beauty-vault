@@ -140,26 +140,6 @@ DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile" ON public.profiles 
   FOR UPDATE USING (auth.uid() = id);
 
--- Create trigger function to sync new user signup to profiles table
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.profiles (id, name, email)
-  VALUES (
-    new.id,
-    COALESCE(new.raw_user_meta_data->>'name', 'Customer'),
-    new.email
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Recreate trigger
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
 -- Create orders table linked to profiles
 CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -182,3 +162,23 @@ CREATE POLICY "Users can view their own orders" ON public.orders
 DROP POLICY IF EXISTS "Users can insert their own orders" ON public.orders;
 CREATE POLICY "Users can insert their own orders" ON public.orders 
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Create trigger function to sync new user signup to profiles table
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, name, email)
+  VALUES (
+    new.id,
+    COALESCE(new.raw_user_meta_data->>'name', 'Customer'),
+    new.email
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Recreate trigger
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

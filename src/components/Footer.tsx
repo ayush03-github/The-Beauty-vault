@@ -8,6 +8,7 @@ export default function Footer() {
   const [email, setEmail] = React.useState("");
   const [isSubscribed, setIsSubscribed] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showThankYou, setShowThankYou] = React.useState(false);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +30,12 @@ export default function Footer() {
         alert(data.error || "Something went wrong. Please try again.");
       } else {
         setIsSubscribed(true);
+        setShowThankYou(true);
         setEmail("");
+        
+        setTimeout(() => {
+          setShowThankYou(false);
+        }, 3000);
       }
     } catch (err) {
       console.warn("Newsletter subscription failed:", err);
@@ -53,9 +59,29 @@ export default function Footer() {
               Be the first to hear about new launches, exclusive stories, and invitations to brand events.
             </p>
             {isSubscribed ? (
-              <div className={styles.subscribeSuccess}>
-                <span className={styles.successIcon}>✓</span>
-                <p className={styles.successText}>Thank you! You've been subscribed to our journal.</p>
+              <div className={styles.subscribeSuccessContainer}>
+                {showThankYou ? (
+                  <p className={styles.successText} style={{ fontWeight: 500 }}>
+                    Thank you for subscribing! We will keep you updated.
+                  </p>
+                ) : (
+                  <>
+                    <div className={styles.subscribeSuccessHeader}>
+                      <span className={styles.successIcon}>✓</span>
+                      <span className={styles.successBadge}>Subscribed</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      className={styles.subscribeAnotherBtn}
+                      onClick={() => {
+                        setIsSubscribed(false);
+                        setShowThankYou(false);
+                      }}
+                    >
+                      Subscribe with another email
+                    </button>
+                  </>
+                )}
               </div>
             ) : (
               <form className={styles.newsletterForm} onSubmit={handleSubscribe}>

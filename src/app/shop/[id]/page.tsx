@@ -64,8 +64,28 @@ export default function ProductDetailPage() {
     setActiveAccordion(activeAccordion === section ? null : section);
   };
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": `https://the-beauty-vault.vercel.app${product.image}`,
+    "description": product.description,
+    "offers": {
+      "@type": "Offer",
+      "url": `https://the-beauty-vault.vercel.app/shop/${product.id}`,
+      "priceCurrency": "USD",
+      "price": product.price,
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    }
+  };
+
   return (
     <div className={styles.pageContainer}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="container">
         
         {/* Back navigation */}

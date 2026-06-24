@@ -52,8 +52,22 @@ const BEST_SELLERS: Product[] = [
 ];
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "OnlineStore",
+    "name": "The Beauty Vault",
+    "description": "A combination of nature and advanced technology. Vegan, natural, skin-friendly and rich in effective biotechnological ingredients.",
+    "url": "https://the-beauty-vault.vercel.app",
+    "image": "https://the-beauty-vault.vercel.app/hero_banner.png",
+    "priceRange": "$$",
+  };
+
   return (
     <div style={{ minHeight: "100%" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 1. HERO BANNER */}
       <section className={styles.hero}>
         <div className={styles.heroImageContainer}>
