@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,12 +35,14 @@ export default function RootLayout({
       <body>
         <CartProvider>
           <WishlistProvider>
-            <Header />
-            <main style={{ flex: 1 }}>
-              {children}
-            </main>
-            <Footer />
-            <CartDrawer />
+            <AuthProvider>
+              <Header />
+              <main style={{ flex: 1 }}>
+                {children}
+              </main>
+              <Footer />
+              <CartDrawer />
+            </AuthProvider>
           </WishlistProvider>
         </CartProvider>
       </body>

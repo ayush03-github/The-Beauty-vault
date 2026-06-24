@@ -1,88 +1,11 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "@/app/shop/shop.module.css";
+import { PRODUCTS, fetchProducts, Product } from "@/data/products";
 
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  image: string;
-  badge?: string;
-  description: string;
-  rating: number;
-  inStock: boolean;
-}
-
-const PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Purifying Gel Cleanser",
-    category: "Cleanse",
-    price: 38,
-    image: "/products/cleanser.png",
-    badge: "Bestseller",
-    description: "A gentle gel cleanser formulated to purify pores and restore skin balance.",
-    rating: 4.8,
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Exfoliating Skin Toner",
-    category: "Exfoliate",
-    price: 45,
-    image: "/products/toner.png",
-    badge: "New",
-    description: "An AHA/BHA complex toner that gently sweeps away dead cells.",
-    rating: 4.6,
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Vitamin C Radiance Serum",
-    category: "Treat",
-    price: 68,
-    image: "/products/serum.png",
-    description: "Potent vitamin C and ferulic acid serum designed to brighten skin tone.",
-    rating: 4.9,
-    inStock: true,
-  },
-  {
-    id: "4",
-    name: "Barrier Support Face Cream",
-    category: "Hydrate",
-    price: 52,
-    image: "/products/cream.png",
-    badge: "Formulated for all",
-    description: "A rich, ceramide-infused cream that fortifies the moisture barrier.",
-    rating: 4.7,
-    inStock: true,
-  },
-  {
-    id: "5",
-    name: "Advanced Renewal Treatment",
-    category: "Treat",
-    price: 75,
-    image: "/products/serum.png",
-    badge: "Limited Edition",
-    description: "A concentrated evening treatment containing gentle encapsulated retinol.",
-    rating: 5.0,
-    inStock: false,
-  },
-  {
-    id: "6",
-    name: "Intense Ceramide Cream",
-    category: "Hydrate",
-    price: 58,
-    image: "/products/cream.png",
-    description: "Deep relief face and neck balm for ultra-dry or compromised skin barriers.",
-    rating: 4.5,
-    inStock: true,
-  }
-];
 
 interface ShopViewProps {
   initialCategory?: string;
@@ -100,12 +23,26 @@ export default function ShopView({
   const [sortBy, setSortBy] = useState("featured");
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [priceRange, setPriceRange] = useState<number>(80);
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+
+  // Fetch products from database (fallback to local PRODUCTS)
+  useEffect(() => {
+    let active = true;
+    fetchProducts().then((data) => {
+      if (active) {
+        setProducts(data);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const categories = ["All", "Cleanse", "Exfoliate", "Treat", "Hydrate"];
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       // Category filter
       if (selectedCategory !== "All" && product.category !== selectedCategory) {
         return false;
@@ -135,7 +72,7 @@ export default function ShopView({
       }
       return 0; // Default Featured
     });
-  }, [selectedCategory, searchQuery, sortBy, onlyInStock, priceRange]);
+  }, [selectedCategory, searchQuery, sortBy, onlyInStock, priceRange, products]);
 
   const defaultTitle = selectedCategory === "All" ? "Shop Skin Care" : `${selectedCategory} Care`;
   const defaultDescription = selectedCategory === "All" 
@@ -235,7 +172,7 @@ export default function ShopView({
                   checked={onlyInStock}
                   onChange={(e) => setOnlyInStock(e.target.checked)}
                 />
-                <span>In Stock Only ({PRODUCTS.filter(p => p.inStock).length})</span>
+                <span>In Stock Only ({products.filter(p => p.inStock).length})</span>
               </label>
             </div>
 
@@ -252,7 +189,7 @@ export default function ShopView({
             {/* Toolbar count & Sorting */}
             <div className={styles.toolbar}>
               <div>
-                <span>Showing {filteredProducts.length} of {PRODUCTS.length} products</span>
+                <span>Showing {filteredProducts.length} of {products.length} products</span>
               </div>
               
               <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>

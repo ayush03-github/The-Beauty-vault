@@ -1,17 +1,79 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./Header.module.css";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import SearchOverlay from "@/components/SearchOverlay";
+import { PRODUCTS, fetchProducts, Product } from "@/data/products";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { cartCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const { user, signOut } = useAuth();
+  
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch products from database (fallback to local PRODUCTS)
+  useEffect(() => {
+    let active = true;
+    fetchProducts().then((data) => {
+      if (active) {
+        setProducts(data);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  // Lock body scroll and focus input when search is open
+  useEffect(() => {
+    if (isSearchOpen) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [isSearchOpen]);
+
+  // Filter products based on search term
+  const filteredProducts = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, products]);
 
   return (
     <>
@@ -22,9 +84,25 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Click-away backdrop for Search */}
+      {isSearchOpen && (
+        <div 
+          className={styles.searchBackdrop} 
+          onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} 
+        />
+      )}
+
       {/* Main Header */}
       <header className={styles.header}>
-        <div className={`container ${styles.navContainer}`}>
+        <div 
+          className={`container ${styles.navContainer}`}
+          style={{ 
+            opacity: isSearchOpen ? 0 : 1,
+            visibility: isSearchOpen ? "hidden" : "visible",
+            pointerEvents: isSearchOpen ? "none" : "auto",
+            transition: "opacity 0.2s ease, visibility 0.2s ease"
+          }}
+        >
           
           {/* Left Column (Desktop Navigation / Mobile Menu + Search) */}
           <div className={styles.leftCol}>
@@ -110,11 +188,24 @@ export default function Header() {
             </Link>
 
             {/* Profile Icon */}
-            <Link href="/account" className={styles.actionButton} aria-label="Account">
+            <Link href="/account" className={styles.actionButton} aria-label="Account" style={{ position: "relative" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
+              {user && (
+                <span 
+                  style={{
+                    position: "absolute",
+                    top: "3px",
+                    right: "3px",
+                    width: "6px",
+                    height: "6px",
+                    backgroundColor: "#137333",
+                    borderRadius: "50%"
+                  }}
+                />
+              )}
             </Link>
 
             {/* Cart/Bag Icon (with dynamic count) */}
@@ -133,25 +224,141 @@ export default function Header() {
           </div>
 
         </div>
-      </header>
 
-      {/* Mobile Menu Drawer/Overlay */}
-      {isMobileMenuOpen && (
-        <div className={styles.mobileMenuOverlay}>
-          <Link href="/shop" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
-          <Link href="/about" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
-          <Link href="/journal" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>Journal</Link>
-          <Link href="/stores" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>Stores</Link>
-          
-          <div className={styles.mobileMenuFooter}>
-            <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>My Account</Link>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              <span>Language: EN</span>
-              <span>Region: Global</span>
+        {/* Inline Search Bar (Expands to 90% width, matches header background) */}
+        {isSearchOpen && (
+          <div className={styles.headerSearchOverlay}>
+            <div className={styles.headerSearchInputWrapper}>
+              <svg className={styles.headerSearchIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                className={styles.headerSearchInput}
+                placeholder="Search our formulations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button 
+                  className={styles.headerSearchClear} 
+                  onClick={() => setSearchQuery("")} 
+                  aria-label="Clear input"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <button 
+              className={styles.headerSearchClose} 
+              onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} 
+              aria-label="Close search"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Mobile Menu Drawer/Overlay (Now absolute inside header) */}
+        {isMobileMenuOpen && (
+          <div className={styles.mobileMenuOverlay}>
+            <Link href="/shop" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
+            <Link href="/about" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
+            <Link href="/journal" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>Journal</Link>
+            <Link href="/stores" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>Stores</Link>
+            
+            <div className={styles.mobileMenuFooter}>
+              {user ? (
+                <>
+                  <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                    My Account ({user.name})
+                  </Link>
+                  <button 
+                    onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                    style={{ textAlign: "left", fontSize: "0.95rem", color: "var(--text-secondary)", textDecoration: "underline", cursor: "pointer", padding: 0 }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                  Sign In / Register
+                </Link>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.9rem", color: "var(--text-secondary)", marginTop: "10px" }}>
+                <span>Language: EN</span>
+                <span>Region: Global</span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Suggestions & Available Products Floating Dropdown */}
+        {isSearchOpen && (
+          <div className={styles.searchDropdown}>
+            <div className={styles.dropdownContainer}>
+              {searchQuery.trim() ? (
+                <div className={styles.dropdownSection}>
+                  <h3 className={styles.dropdownSectionTitle}>
+                    Search Results ({filteredProducts.length})
+                  </h3>
+                  {filteredProducts.length > 0 ? (
+                    <div className={styles.dropdownGrid}>
+                      {filteredProducts.map((product) => (
+                        <Link 
+                          href={`/shop/${product.id}`} 
+                          key={product.id} 
+                          className={styles.dropdownProductCard}
+                          onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }}
+                        >
+                          <div className={styles.dropdownImageWrapper}>
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              width={50}
+                              height={62}
+                              className={styles.dropdownImage}
+                            />
+                          </div>
+                          <div className={styles.dropdownDetails}>
+                            <span className={styles.dropdownProductCategory}>{product.category}</span>
+                            <h4 className={styles.dropdownProductName}>{product.name}</h4>
+                            <span className={styles.dropdownProductPrice}>${product.price}.00</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={styles.dropdownEmptyText}>
+                      No formulations found matching "{searchQuery}".
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.dropdownSection}>
+                  <h3 className={styles.dropdownSectionTitle}>Popular Searches</h3>
+                  <div className={styles.popularKeywordsWrapper}>
+                    {["Cleanser", "Toner", "Serum", "Cream"].map((keyword) => (
+                      <button
+                        key={keyword}
+                        className={styles.popularKeywordButton}
+                        onClick={() => setSearchQuery(keyword)}
+                      >
+                        {keyword}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
 
       {/* Global Helper Style for Desktop Hidden elements */}
       <style jsx global>{`
@@ -161,9 +368,7 @@ export default function Header() {
           }
         }
       `}</style>
-
-      {/* Full-screen Search Overlay */}
-      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 }
+

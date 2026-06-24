@@ -22,20 +22,27 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize with 1 default item to match the mock count '1'
+  // Load from local storage on mount (hydration-safe)
   useEffect(() => {
-    setWishlistItems([
-      {
-        id: "2",
-        name: "Exfoliating Skin Toner",
-        category: "Exfoliate",
-        price: 45,
-        image: "/products/toner.png",
-        inStock: true,
+    const saved = localStorage.getItem("tbv_wishlist");
+    if (saved) {
+      try {
+        setWishlistItems(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse wishlist from local storage", e);
       }
-    ]);
+    }
+    setIsLoaded(true);
   }, []);
+
+  // Save to local storage on change (preventing overwrite on mount)
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("tbv_wishlist", JSON.stringify(wishlistItems));
+    }
+  }, [wishlistItems, isLoaded]);
 
   const toggleWishlist = (product: WishlistItem) => {
     setWishlistItems((prev) => {

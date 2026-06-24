@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import styles from "./CartDrawer.module.css";
 
 export default function CartDrawer() {
@@ -13,7 +15,12 @@ export default function CartDrawer() {
     updateQuantity,
     removeFromCart,
     cartTotal,
+    clearCart,
   } = useCart();
+
+  const { user } = useAuth();
+  const router = useRouter();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +42,101 @@ export default function CartDrawer() {
       document.body.style.overflow = "";
     };
   }, [isCartOpen]);
+
+  const handleCheckout = async () => {
+    if (!user) {
+      alert("Please sign in or create an account to complete your checkout.");
+      setIsCartOpen(false);
+      router.push("/account");
+      return;
+    }
+
+    setIsCheckingOut(true);
+    const orderNumber = `#TBV-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderDate = new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+
+    const newOrder = {
+      number: orderNumber,
+      date: orderDate,
+      status: "Fulfilled",
+      total: cartTotal,
+    };
+
+    const { supabase: supabaseClient } = await import("@/lib/supabase");
+
+    if (!supabaseClient) {
+      // Mock path
+      try {
+        const savedOrders = localStorage.getItem(`tbv_orders_${user.id}`);
+        const ordersList = savedOrders ? JSON.parse(savedOrders) : [];
+        ordersList.unshift(newOrder); // Add to the top
+        localStorage.setItem(`tbv_orders_${user.id}`, JSON.stringify(ordersList));
+      } catch (e) {
+        console.error("Failed to save order to localStorage", e);
+      }
+      
+      // Clear cart and close
+      clearCart();
+      setIsCartOpen(false);
+      setIsCheckingOut(false);
+      alert(`Thank you for your purchase! Order ${orderNumber} has been placed successfully.`);
+      router.push("/account");
+      return;
+    }
+
+    // Database insertion path
+    try {
+      const { error: insertError } = await supabaseClient
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          order_number: orderNumber,
+          date: orderDate,
+          status: "Fulfilled",
+          total: cartTotal,
+        });
+
+      if (insertError) {
+        const isTableMissing = insertError.code === "PGRST205" || 
+                               insertError.message?.includes("schema cache") ||
+                               insertError.message?.includes("does not exist");
+        if (isTableMissing) {
+          try {
+            const savedOrders = localStorage.getItem(`tbv_orders_${user.id}`);
+            const ordersList = savedOrders ? JSON.parse(savedOrders) : [];
+            ordersList.unshift(newOrder); // Add to the top
+            localStorage.setItem(`tbv_orders_${user.id}`, JSON.stringify(ordersList));
+          } catch (e) {
+            console.warn("Failed to save order to localStorage", e);
+          }
+          clearCart();
+          setIsCartOpen(false);
+          setIsCheckingOut(false);
+          alert(`Thank you for your purchase! Order ${orderNumber} has been placed successfully.`);
+          router.push("/account");
+          return;
+        }
+        alert(`Checkout failed: ${insertError.message}`);
+        setIsCheckingOut(false);
+        return;
+      }
+
+      // Clear cart and close
+      clearCart();
+      setIsCartOpen(false);
+      setIsCheckingOut(false);
+      alert(`Thank you for your purchase! Order ${orderNumber} has been placed successfully.`);
+      router.push("/account");
+    } catch (e: any) {
+      console.warn("Failed to insert order into DB", e);
+      alert(`Checkout failed: ${e.message || "Unknown error"}`);
+      setIsCheckingOut(false);
+    }
+  };
 
   if (!isCartOpen) return null;
 
@@ -149,9 +251,10 @@ export default function CartDrawer() {
               </p>
               <button 
                 className={styles.checkoutButton}
-                onClick={() => alert("Proceeding to checkout mock flow...")}
+                onClick={handleCheckout}
+                disabled={isCheckingOut}
               >
-                Checkout
+                {isCheckingOut ? "Processing..." : "Checkout"}
               </button>
               <span 
                 className={styles.continueShopping}

@@ -28,28 +28,27 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize with some default items to match the "badge count: 2" in the header mockup
+  // Load from local storage on mount (hydration-safe)
   useEffect(() => {
-    setCartItems([
-      {
-        id: "1",
-        name: "Purifying Gel Cleanser",
-        category: "Cleanse",
-        price: 38,
-        image: "/products/cleanser.png",
-        quantity: 1,
-      },
-      {
-        id: "2",
-        name: "Exfoliating Skin Toner",
-        category: "Exfoliate",
-        price: 45,
-        image: "/products/toner.png",
-        quantity: 1,
+    const saved = localStorage.getItem("tbv_cart");
+    if (saved) {
+      try {
+        setCartItems(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse cart from local storage", e);
       }
-    ]);
+    }
+    setIsLoaded(true);
   }, []);
+
+  // Save to local storage on change (preventing overwrite on mount)
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("tbv_cart", JSON.stringify(cartItems));
+    }
+  }, [cartItems, isLoaded]);
 
   const addToCart = (product: { id: string; name: string; category: string; price: number; image: string }, quantity = 1) => {
     setCartItems((prev) => {
